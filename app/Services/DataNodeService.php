@@ -40,12 +40,12 @@ class DataNodeService
     {
         DB::transaction(function () use ($id) {
             // 1. Находим ID всех потомков (включая самого себя) через Closure Table
-            $descendantsIds = DB::table('data_node_closures')
+            $descendantsIds = DB::table('data_node_closure')
                 ->where('ancestor_id', $id)
                 ->pluck('descendant_id');
 
             // 2. Удаляем связи в Closure Table для всех найденных узлов
-            DB::table('data_node_closures')
+            DB::table('data_node_closure')
                 ->whereIn('descendant_id', $descendantsIds)
                 ->delete();
 
