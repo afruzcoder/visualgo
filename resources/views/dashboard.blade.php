@@ -35,10 +35,14 @@
     <aside class="w-96 bg-white border-l border-slate-200 shadow-xl p-6 overflow-y-auto">
         <div id="detailsCard" class="mb-8 hidden">
             <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Выбранный объект</h2>
-            <div class="p-4 bg-slate-900 rounded-xl text-white">
+            <div class="p-4 bg-slate-900 rounded-xl text-white relative">
                 <p id="detName" class="text-xl font-bold mb-1"></p>
                 <span id="detType" class="inline-block px-2 py-1 bg-blue-600 text-[10px] rounded uppercase mb-3"></span>
-                <p id="detDesc" class="text-slate-400 text-sm"></p>
+                <p id="detDesc" class="text-slate-400 text-sm mb-4"></p>
+
+                <button onclick="deleteNode()" class="w-full py-2 bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/50 rounded-lg text-xs font-bold transition">
+                    Удалить этот узел и всех потомков
+                </button>
             </div>
         </div>
 
@@ -188,6 +192,21 @@
             alert("Ошибка: " + (err.response?.data?.message || "Проверьте данные"));
         }
     };
+
+    async function deleteNode() {
+        if (!currentParentId) return;
+
+        if (confirm('Вы уверены? Это удалит выбранный узел и все вложенные в него элементы!')) {
+            try {
+                await axios.delete(`/api/nodes/${currentParentId}`);
+                alert('Узел успешно удален');
+                resetToRoot(); // Возвращаемся в корень, так как текущего узла больше нет
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка при удалении: ' + (err.response?.data?.message || 'Неизвестная ошибка'));
+            }
+        }
+    }
 
     // Начальная загрузка
     loadData();

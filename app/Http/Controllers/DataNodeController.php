@@ -54,6 +54,6 @@ class DataNodeController extends Controller
     public function destroy($id, DataNodeService $service)
     {
         $service->delete($id);
-        return response()->json(['status' => 'ok']);
+        return response()->json(['message' => 'Deleted successfully']);
     }
 }

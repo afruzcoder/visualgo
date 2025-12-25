@@ -38,6 +38,21 @@ class DataNodeService
 
     public function delete(int $id): void
     {
-        DB::transaction(fn () => DataNode::where('id', $id)->delete());
+        DB::transaction(function () use ($id) {
+            // 1. Находим ID всех потомков (включая самого себя) через Closure Table
+            $descendantsIds = DB::table('data_node_closure')
+                ->where('ancestor_id', $id)
+                ->pluck('descendant_id');
+
+            // 2. Удаляем связи в Closure Table для всех найденных узлов
+            DB::table('data_node_closure')
+                ->whereIn('descendant_id', $descendantsIds)
+                ->delete();
+
+            // 3. Удаляем сами узлы из основной таблицы
+            // (SQL автоматически удалит записи из-за ON DELETE CASCADE, если настроено,
+            // но лучше сделать это явно для надежности)
+            \App\Models\DataNode::whereIn('id', $descendantsIds)->delete();
+        });
     }
 }
